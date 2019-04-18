@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        * {
+            user-select: none;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+         #test1{
+             width:200px;
+             height:30px;
+             text-indent: 10px;
+
+         }
+         h2{
+             text-align: center;
+             margin-top:50px;
+         }
+        .pick_year {
+            width: 100%;
+            height: 60px;
+            text-align: center;
+        }
+
+        .pick_year_item {
+            margin-right: 20px;
+        }
+
+        .dialog {
+            width: 230px;
+            padding: 5px;
+            border: 1px solid black;
+            text-align: center;
+            margin:50px auto;
+        }
+
+        .weekday,
+        .month_days {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-start;
+        }
+
+        .weekday_item,
+        .days_item {
+            width: 32px;
+            font-size: 14px;
+            margin-bottom: 20px;
+            text-align: center;
+
+        }
+
+        .day_color {
+            color: #ffc936;
+        }
+
+        .gray_color {
+            color: #acacac;
+        }
+
+        .red_color {
+            color: #ff1f3d;
+
+        }
+
+        .blue_color {
+            color: #5be3e3;
+        }
+
+        .real_day:hover {
+            outline: 1px solid orange;
+        }
+
+        .select_day_active {
+            outline: 1px solid orange;
+        }
+    </style>
+</head>
+
+<body>
+    <h2>js Timepicker</h2>
+    <div class="dialog">
+        <input type="text" id="test1">
+        <div class="pick_year">
+            <span class="pick_year_item" id="decrease_year">◀ </span>
+            <span class="pick_year_item"><span id="year_num">2019</span>年<span id="month_num">1</span>月
+            </span>
+            <span class="pick_year_item" id="increase_year"> ▶</span>
+        </div>
+        <ul class="weekday">
+            <li class="weekday_item red_color">日</li>
+            <li class="weekday_item">一</li>
+            <li class="weekday_item">二</li>
+            <li class="weekday_item">三</li>
+            <li class="weekday_item">四</li>
+            <li class="weekday_item">五</li>
+            <li class="weekday_item blue_color">六</li>
+        </ul>
+        <ul class="month_days" id="getdays">
+        </ul>
+    </div>
+    <script>
+        var input = document.getElementById('test1');
+        var dec = document.getElementById('decrease_year');
+        var inc = document.getElementById('increase_year');
+        var year_num = document.getElementById('year_num');
+        var month_num = document.getElementById('month_num');
+        var month_days = document.getElementById('getdays');
+
+        var date = new Date(); //获取当前日期
+        var year = date.getFullYear();
+        var month = date.getMonth() + 1;
+        var day = date.getDate();
+        console.log(day);
+        var hour = date.getHours();
+        var minute = date.getMinutes();
+        var dateformate = formateDate(month, day, hour, minute)
+        input.value = year + '-' + dateformate.month + '-' + dateformate.day + ' ' + dateformate.hour + ':' + dateformate.minute;
+        year_num.innerHTML = year;
+        month_num.innerHTML = month;
+        var yearNums = parseInt(year_num.innerHTML);
+        var monthNums = parseInt(month_num.innerHTML);
+
+
+        dec.onclick = function () { //上一个月
+            month_days.innerHTML = '';
+            yearNums = parseInt(year_num.innerHTML);
+            monthNums = monthNums - 1;
+            month_num.innerHTML = monthNums;
+
+
+            console.log(monthNums);
+            if (monthNums === 0) {
+                monthNums = 12;
+                year_num.innerHTML = yearNums - 1;
+            }
+            month_num.innerHTML = monthNums;
+            getMonthDays(yearNums, monthNums);
+            selectDate();
+        }
+        inc.onclick = function () { //下一个月
+            month_days.innerHTML = '';
+            yearNums = parseInt(year_num.innerHTML);
+            month_num.innerHTML = monthNums++;
+            if (monthNums === 13) {
+                monthNums = 1;
+                year_num.innerHTML = yearNums + 1;
+            }
+            month_num.innerHTML = monthNums;
+            getMonthDays(yearNums, monthNums);
+            selectDate();
+        }
+
+        function getMonthDays(yearNums, monthNums) {
+            var date1 = new Date(yearNums, monthNums, 0);
+            var date2 = new Date(yearNums, monthNums - 1, 1);
+            var date3 = new Date(yearNums, monthNums - 1, 0);
+            console.log(date1.getDate());
+            console.log(date1.getDay());
+            console.log(date3.getDate());
+            var last_month_day = date3.getDate();
+
+            var insert_before_nums = date2.getDay();
+            var insert_after_nums = date1.getDay();
+            var days = date1.getDate();
+            for (var i = 1; i <= days; i++) {
+                let dates = new Date(yearNums, monthNums - 1, i);
+
+                var li = document.createElement('li');
+                li.className = 'days_item real_day';
+                li.innerHTML = i;
+                var isWeekend = dates.getDay();
+                if (isWeekend === 0) {
+                    li.className = 'days_item real_day red_color';
+                }
+                if (isWeekend === 6) {
+                    li.className = 'days_item real_day blue_color';
+                }
+                document.getElementById('getdays').appendChild(li);
+            }
+            console.log(monthNums);
+            console.log(month);
+            if (monthNums === month) {  //今日日期显示为橙色
+                console.log('aaa');
+                var today = document.querySelectorAll('.days_item')[day - 1];
+                today.className = "day_color days_item real_day "
+
+            }
+            for (let i = 0; i < insert_before_nums; i++) {
+                var days_one = document.querySelectorAll('.days_item')[0];
+                var lis = document.createElement('li');
+                lis.className = 'days_item gray_color';
+                lis.innerHTML = last_month_day--;
+                document.querySelector('.month_days').insertBefore(lis, days_one);
+
+            }
+            for (let i = 1; i <= 6 - insert_after_nums; i++) {
+                var lis = document.createElement('li');
+                lis.className = 'days_item gray_color';
+                lis.innerHTML = i;
+                document.querySelector('.month_days').appendChild(lis);
+
+            }
+
+        }
+        getMonthDays(yearNums, monthNums);
+        function formateDate(month, day, hour, minute) {
+            month = month < 10 ? '0' + month : month;
+            day = day < 10 ? '0' + day : day;
+            hour = hour < 10 ? '0' + hour : hour;
+            minute = minute < 10 ? '0' + minute : minute;
+            console.log(day);
+            return {
+                month,
+                day,
+                hour,
+                minute
+            }
+        }
+        function selectDate() {
+            var real_days = document.querySelectorAll('.real_day');
+            for (let i = 0; i < real_days.length; i++) {
+                real_days[i].onclick = function () {
+                    console.log('as');
+                    console.log(this.innerHTML);
+                    day = this.innerHTML;
+                    month = month_num.innerHTML;
+                    year = year_num.innerHTML;
+                    let dateformate = formateDate(month, day, hour, minute)
+                    input.value = year + '-' + dateformate.month + '-' + dateformate.day + ' ' + dateformate.hour + ':' + dateformate.minute;
+
+                }
+            }
+
+        }
+        selectDate();
+
+
+
+
+
+
+    </script>
+
+</body>
+
+</html>
